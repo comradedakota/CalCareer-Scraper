@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CalCareers Job Listings</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <style>
+        body {
+            background-color: #2e2e2e;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-column.stripe tbody tr.even > .sorting_1 {
+    background-color: #1a1a1a;
+}
+        table.dataTable {
+            background-color: #424242;
+            width: 100% !important;
+        }
+        table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1{
+            background-color: #424242;
+        }
+        table.dataTable tbody tr:nth-child(even){
+            background-color: #1a1a1a;
+        }
+        table.dataTable thead {
+            background-color: #616161;
+        }
+        table.dataTable thead th {
+            color: #ffffff;
+        }
+        table.dataTable tbody tr {
+            background-color: #424242;
+        }
+        table.dataTable tbody tr:nth-child(even) {
+            background-color: #424242;
+        }
+        table.dataTable tbody tr:nth-child(odd) {
+            background-color: #424242 ;
+        }
+        table.dataTable tbody td {
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+        }
+        td.details-control {
+            background: url('https://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url('https://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
+        }
+        table.details-table {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #424242;
+            table-layout: fixed;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+        }
+        table.details-table td {
+            padding: 5px;
+            background-color: #424242 !important;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+        }
+        .thumbs-up, .thumbs-down {
+            cursor: pointer;
+        }
+        .thumb-column {
+            width: 30px;
+            text-align: center;
+        }
+    </style>
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+</head>
+<body>
+    <h1>CalCareers Job Listings</h1>
+    <table id="jobTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="thumb-column"></th>
+                <th class="thumb-column"></th>
+                <th>Working Title</th>
+                <th>Department</th>
+                <th>Classification</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+        function format(d) {
+            return `
+                <table class="details-table">
+                    <tr><td>Department:</td><td>${d.Department}</td></tr>
+                    <tr><td>Final Filing Date:</td><td>${d['Final Filing Date']}</td></tr>
+                    <tr><td>Salary:</td><td>${d.Salary}</td></tr>
+                    <tr><td><a href="${d['Job URL']}" target=_>Job Control Number:</td><td>${d['Job Control Number']}</a></td></tr>
+                    <tr><td>Job Description:</td><td>${d['Job Description']}</td></tr>
+                    <tr><td>Desirable Qualifications:</td><td>${d['Desirable Qualifications']}</td></tr>
+                    <tr><td>Special Requirements:</td><td>${d['Special Requirements']}</td></tr>
+                </table>`;
+        }
+
+        $(document).ready(function() {
+            var table = $('#jobTable').DataTable({
+                responsive: true,
+                pageLength: 100,
+                ajax: {
+                    url: '/jobs',
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        className: 'details-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        className: 'thumb-column',
+                        defaultContent: '<span class="thumbs-up">👍</span>'
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        className: 'thumb-column',
+                        defaultContent: '<span class="thumbs-down">👎</span>'
+                    },
+                    { data: 'Working Title', defaultContent: 'N/A' },
+                    { data: 'Department', defaultContent: 'N/A' },
+                    { data: 'Classification', defaultContent: 'N/A' },
+                    { data: 'Location', defaultContent: 'N/A' }
+                ],
+                order: [[3, 'asc']],
+                rowCallback: function(row, data) {
+                    $(row).removeAttr('style'); // Reset any existing inline styles
+                    if (data.Status === 'up') {
+                        $(row).css('cssText', 'background-color: green !important;');
+                    } else if (data.Status === 'down') {
+                        $(row).css('cssText', 'background-color: red !important;');
+                    } else {
+                        $(row).css('cssText', 'background-color: #424242 !important;');
+                    }
+                }
+            });
+
+            // Add event listener for opening and closing details
+            $('#jobTable tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+
+            $('#jobTable tbody').on('click', '.thumbs-up', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                var data = row.data();
+                data.Status = 'up';
+
+                $.ajax({
+                    url: '/update_status',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ id: data.id, status: 'up' }),
+                    success: function(response) {
+                        row.data(data).invalidate().draw(false);  // update row data and redraw
+                        $(tr).css('cssText', 'background-color: green !important;');
+                    }
+                });
+            });
+
+            $('#jobTable tbody').on('click', '.thumbs-down', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                var data = row.data();
+                data.Status = 'down';
+
+                $.ajax({
+                    url: '/update_status',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ id: data.id, status: 'down' }),
+                    success: function(response) {
+                        row.data(data).invalidate().draw(false);  // update row data and redraw
+                        $(tr).css('cssText', 'background-color: red !important;');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
