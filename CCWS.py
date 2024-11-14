@@ -13,12 +13,20 @@ import sqlite3
 
 # Flag for debug mode
 DEBUG_MODE = False
-FRESH_DB = False
-classIds = {"Information Technology Specialist I": 7166,
-            "Information Technology Specialist II": 7167,
-            "Information Technology Technician": 7164,
-            "Information Technology Associate": 7165}#, "Information Technology Specialist III": 7168, }
-locations = {"Sacramento": 418, "Placer": 382, "Yolo": 660, "El Dorado": 79}
+FRESH_DB = True
+#classIds = {"Information Technology Specialist I": 7166,
+#            "Information Technology Specialist II": 7167,
+#            "Information Technology Technician": 7164,
+#            "Information Technology Associate": 7165}#, "Information Technology Specialist III": 7168, }
+classIds = {
+    "ASSOCIATE GOVERNMENTAL PROGRAM ANALYST": 2259
+}
+
+#locations = {"Sacramento": 418, "Placer": 382, "Yolo": 660, "El Dorado": 79}
+locations = {
+    "Sacramento": 418,
+    "Yolo": 660
+}
 
 def create_session():
     session = requests.Session()
